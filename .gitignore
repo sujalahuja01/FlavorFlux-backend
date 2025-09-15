@@ -1,0 +1,41 @@
+# Environment & secrets
+.env
+*.env
+env.*
+*env*
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+.env/
+venv.bak/
+env.bak/
+
+# Local databases & instance folders
+*.sqlite3
+*.db
+instance/
+*.sqlite
+
+# Migrations (if using flask-migrate/alembic, don't ignore migrations!)
+# migrations/
+
+# IDE/Editor settings
+.idea/
+.vscode/
+*.swp
+
+# OS Generated files
+.DS_Store
+Thumbs.db
+
+# Other
+*.log
