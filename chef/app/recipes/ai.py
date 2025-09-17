@@ -98,7 +98,7 @@ def call_ai(ingredients, cuisine=None, previous_title=None):
         "cuisine": ai_recipe.get("cuisine"),
         'ingredients': ai_recipe.get("ingredients"),
         "steps": ai_recipe.get("steps"),
-        "yt_link": get_video(ai_recipe.get("title")),
+        "youtube_link": get_video(ai_recipe.get("title")),
         "time": ai_recipe.get("time")
     }
 

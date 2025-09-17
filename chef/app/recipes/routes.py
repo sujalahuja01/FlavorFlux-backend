@@ -4,7 +4,6 @@ import logging
 from flask import Blueprint, request, jsonify, session
 from flask_login import login_required, current_user
 from chef.app.recipes.model import Favourite
-from chef.app.auth.model import User
 from chef.app.app import db, limiter
 from chef.app.recipes.ai import call_ai
 
@@ -102,7 +101,7 @@ def save_recipe():
         title = recipe_data["title"],
         ingredients = recipe_data["ingredients"],
         cuisine = recipe_data["cuisine"],
-        youtube_link = recipe_data.get("yt_link"),
+        youtube_link = recipe_data.get("youtube_link"),
         steps = recipe_data["steps"],
         time = recipe_data["time"]
     )
