@@ -133,7 +133,7 @@ def save_recipe():
 @recipes.route("/favourite", methods=["GET"])
 @login_required
 def get_favourite():
-    user = User.query.get(current_user.uid)
+    user = current_user
     favs = user.favourites
 
     return jsonify({
