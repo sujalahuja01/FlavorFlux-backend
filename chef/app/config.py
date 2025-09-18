@@ -18,4 +18,4 @@ class Config:
     MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER")
 
     SESSION_COOKIE_SAMESITE = "None"
-    SESSION_COOKIE_SECURE = False
+    SESSION_COOKIE_SECURE = True
