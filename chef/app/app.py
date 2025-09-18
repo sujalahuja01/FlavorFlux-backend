@@ -9,6 +9,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from authlib.integrations.flask_client import OAuth
 from flask_mail import Mail, Message
+import os
 
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -32,6 +33,13 @@ def create_app():
         r"/recipes/*": {"origins": "http://localhost:5173"}
     })
     app.config.from_object(Config)
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+        "DATABASE_URL",
+        app.config.get("SQLALCHEMY_DATABASE_URI", "sqlite:///testdb.db")
+    )
+
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     db.init_app(app)
     migrate.init_app(app, db)
