@@ -55,52 +55,55 @@ def call_ai(ingredients, cuisine=None, previous_title=None):
             f"{edited_text}"
         )
 
-
-    response = requests.post(
-        url= API_URL,
-        headers={
-            "Authorization": f"Bearer {API_KEY}",
-            "Content-Type": "application/json"
-        },
-        data=json.dumps({
-            "model": "deepseek/deepseek-r1-0528:free",
-            "messages": [
-                {
-                    "role": "system",
-                    "content": system_prompt
-                },
-                {
-                    "role": "user",
-                    "content": user_prompt
-                }
-            ]
-        })
-    )
-    response.raise_for_status()
-    ai_data = response.json()
-    raw_content = ai_data["choices"][0]["message"]["content"]
-    pattern = r"\{.*\}"
-    match = re.search(pattern, raw_content, re.DOTALL)
-    if match:
-        recipe_str = match.group()
-    else:
-        print("No json found")
     try:
+        response = requests.post(
+            url= API_URL,
+            headers={
+                "Authorization": f"Bearer {API_KEY}",
+                "Content-Type": "application/json"
+            },
+            data=json.dumps({
+                "model": "deepseek/deepseek-r1-0528:free",
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": system_prompt
+                    },
+                    {
+                        "role": "user",
+                        "content": user_prompt
+                    }
+                ]
+            }),
+            timeout=120
+        )
+        response.raise_for_status()
+        ai_data = response.json()
+
+        raw_content = ai_data["choices"][0]["message"]["content"]
+        pattern = r"\{.*\}"
+        match = re.search(pattern, raw_content, re.DOTALL)
+        if not match:
+            return {"success": False, "error": "AI did not return JSON"}
+
+        recipe_str = match.group()
         ai_recipe = json.loads(recipe_str)
-    except json.JSONDecodeError:
-        print("❌ AI did not return valid JSON. Here is what it gave:\n", recipe_str)
-        raise
 
+        return {
+            "success": True,
+            "title": ai_recipe.get("title"),
+            "cuisine": ai_recipe.get("cuisine"),
+            'ingredients': ai_recipe.get("ingredients"),
+            "steps": ai_recipe.get("steps"),
+            "youtube_link": get_video(ai_recipe.get("title")),
+            "time": ai_recipe.get("time")
+        }
 
-    return {
-        "success": True,
-        "title": ai_recipe.get("title"),
-        "cuisine": ai_recipe.get("cuisine"),
-        'ingredients': ai_recipe.get("ingredients"),
-        "steps": ai_recipe.get("steps"),
-        "youtube_link": get_video(ai_recipe.get("title")),
-        "time": ai_recipe.get("time")
-    }
+    except requests.exceptions.Timeout:
+        return {"success": False, "error": "AI service took too long. Please try again."}
+    except Exception as e:
+        return {"success":False, "error": str(e)}
+
 
 def get_video(video):
     for duration in ["medium", "short"]:
