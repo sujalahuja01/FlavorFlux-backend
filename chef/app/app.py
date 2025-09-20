@@ -1,5 +1,6 @@
 import logging
-from flask import Flask, jsonify
+from flask import Flask, jsonify, session
+from datetime import timedelta
 from flask_login import LoginManager, current_user
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
@@ -18,7 +19,8 @@ oauth = OAuth()
 mail = Mail()
 
 limiter = Limiter(
-    key_func=lambda: str(current_user.get_id()) if current_user.is_authenticated else get_remote_address()
+    key_func=get_remote_address,
+    default_limits=["1000 per day", "100 per hour"]
 )
 
 def create_app():
@@ -38,6 +40,7 @@ def create_app():
         "DATABASE_URL",
         app.config.get("SQLALCHEMY_DATABASE_URI", "sqlite:///testdb.db")
     )
+    app.permanent_session_lifetime = timedelta(minutes=1)
 
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
