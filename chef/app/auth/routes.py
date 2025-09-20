@@ -1,6 +1,7 @@
 import logging
+from flask_limiter.util import get_remote_address
 from flask_mail import Message
-from flask import Blueprint, request, jsonify, url_for, redirect, current_app
+from flask import Blueprint, request, jsonify, url_for, redirect, current_app, session
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_limiter.errors import RateLimitExceeded
@@ -48,6 +49,11 @@ class PasswordResetSchema(Schema):
 
 
 # -------- Utility functions  --------
+
+def user_or_ip():
+    if current_user.is_authenticated:
+        return str(current_user.get_id())
+    return get_remote_address()
 
 def is_google_login(user):
     return getattr(user, "google_login", False)
@@ -153,6 +159,7 @@ def authorize():
             try:
                 create_user(new_user)
                 login_user(new_user)
+                session.permanent = True
                 logging.info(f"Created new Google OAuth user: {username} ({email})")
             except Exception as e:
                 logging.error(f"Error creating OAuth user {username}: {e}")
@@ -163,6 +170,7 @@ def authorize():
             return redirect(next_url)
 
         login_user(user)
+        session.permanent = True
         next_url = "http://127.0.0.1:5500/test.html"
         # next_url = current_app.config.get("FRONTEND_REDIRECT_URL", "/")
         return redirect(next_url)
@@ -259,6 +267,7 @@ def login():
 
         if password and user.check_password(password):
             login_user(user)
+            session.permanent = True
             return success_response("You’re in, rizzler 🔑✨", 200)
         return error_response("Password flopped harder than a failed TikTok 💀. Retry or hit reset?", 401)
 
@@ -267,6 +276,7 @@ def login():
 
     if user.check_password(password):
         login_user(user)
+        session.permanent = True
         return success_response("You’re in, rizzler 🔑✨", 200)
 
     logging.warning(f"Failed login attempt for user: {user.username}")
@@ -299,7 +309,7 @@ def logout():
 # -------- Change password --------
 @auth.route("/change_password", methods=["POST"])
 @login_required
-@limiter.limit("5 per hour")
+@limiter.limit("10 per hour", key_func=user_or_ip)
 def change_password():
     try:
         data = ChangePasswordSchema().load(request.get_json())
