@@ -1,6 +1,7 @@
 import time
 import logging
-
+from flask_limiter.errors import RateLimitExceeded
+from chef.app.auth.routes import user_or_ip
 from flask import Blueprint, request, jsonify, session
 from flask_login import login_required, current_user
 from chef.app.recipes.model import Favourite
@@ -24,7 +25,7 @@ recipes = Blueprint("recipes", __name__)
 
 @recipes.route("/generate", methods=["POST"])
 @login_required
-@limiter.limit("8 per hour")
+@limiter.limit("8 per hour", key_func=user_or_ip)
 def generate_recipe():
     data = request.get_json()
 
@@ -57,7 +58,7 @@ def generate_recipe():
 
 @recipes.route("/refresh", methods=["POST"])
 @login_required
-@limiter.limit("5 per hour")
+@limiter.limit("5 per hour", key_func=user_or_ip)
 def refresh_recipe():
     tries = 3
     ingredients = session.get("last_ingredients")
@@ -82,6 +83,13 @@ def refresh_recipe():
         return success_response(old_recipe, 200)
     else:
         return error_response("could not generate a new recipe", 500)
+
+
+# -------- Saving recipe  --------
+
+@recipes.errorhandler(RateLimitExceeded)
+def recipe_limit_handler(e):
+    return error_response("Chill chef 🧑‍🍳, too many recipes too fast!", 429)
 
 
 # -------- Saving recipe  --------
@@ -116,6 +124,7 @@ def save_recipe():
         try:
             db.session.add(fav)
             db.session.commit()
+            count += 1
         except Exception as e:
             db.session.rollback()
             logging.error(f"Failed to save recipe for user {current_user.uid}: {e}")
@@ -159,8 +168,10 @@ def get_favourite():
 @login_required
 def delete_favourite(rid):
     fav = Favourite.query.get(rid)
-    if not fav or fav.user_id != current_user.uid:
-        return error_response("Unauthorised or not found", 401)
+    if not fav:
+        return error_response("Recipe not found", 404)
+    if fav.user_id != current_user.uid:
+        return error_response("Unauthorized", 401)
 
     try:
         db.session.delete(fav)
