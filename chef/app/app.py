@@ -29,8 +29,8 @@ def create_app():
         format='%(asctime)s %(levelname)s %(name)s %(message)s'
     )
     CORS(app, supports_credentials = True, resources={
-        r"/auth/*": {"origins": "https://flavorflux.onrender.com"},
-        r"/recipes/*": {"origins": "https://flavorflux.onrender.com"}
+        r"/auth/*": {"origins": ["https://flavorflux.vercel.app", "http://localhost:5173" ]},
+        r"/recipes/*": {"origins": ["https://flavorflux.vercel.app", "http://localhost:5173" ]}
     })
     app.config.from_object(Config)
 
