@@ -110,9 +110,3 @@ def get_video(video):
             print(f"Error fetching YouTube video for duration {duration}: {e}")
             continue
     return None
-
-# Test the function
-if __name__ == "__main__":
-    ingredients = ["chicken breast", "rice", "spinach", "garlic"]
-    result = call_ai(ingredients, cuisine="Indian")
-    print(json.dumps(result, indent=2))
