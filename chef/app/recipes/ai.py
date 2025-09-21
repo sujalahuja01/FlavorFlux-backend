@@ -5,12 +5,16 @@ import os
 import pathlib
 import re
 
+from google import genai
+from google.genai import types
+
 env_path = pathlib.Path(__file__).parent.parent.parent / '.env'
 load_dotenv(dotenv_path=env_path)
 
-API_URL = "https://openrouter.ai/api/v1/chat/completions"
-API_KEY = os.getenv("AI_KEY")
 YT_KEY = os.getenv("YT_KEY")
+GEMINI_KEY = os.getenv("GEMINI_API_KEY")
+
+client = genai.Client(api_key=GEMINI_KEY)
 
 
 def call_ai(ingredients, cuisine=None, previous_title=None):
@@ -37,73 +41,51 @@ def call_ai(ingredients, cuisine=None, previous_title=None):
 
     )
 
-    if previous_title:
-        edited_text =  f" Do not suggest the recipe titled '{previous_title}'. Please recommend a different recipe."
-    else:
-        edited_text = ""
+
+    edited_text =  f" Do not suggest the recipe titled '{previous_title}'. Please recommend a different recipe." if previous_title else ""
+    user_prompt = f"I have {formatted_ingredients}. "
 
     if cuisine:
-        user_prompt = (
-            f"I have {formatted_ingredients}. " 
-            f"Please give me a recipe from {cuisine} cuisine you'd recommend I make! "
-            f"{edited_text}"
-        )
+        user_prompt += f"Please give me a recipe from {cuisine} cuisine you'd recommend I make! {edited_text}"
     else:
-        user_prompt = (
-            f"I have {formatted_ingredients}. "
-            f"Please give me a recipe you'd recommend I make! "
-            f"{edited_text}"
-        )
+        user_prompt += f"Please give me a recipe you'd recommend I make! {edited_text} "
 
     try:
-        response = requests.post(
-            url= API_URL,
-            headers={
-                "Authorization": f"Bearer {API_KEY}",
-                "Content-Type": "application/json"
-            },
-            data=json.dumps({
-                "model": "google/gemini-2.0-flash-exp:free",
-                "messages": [
-                    {
-                        "role": "system",
-                        "content": system_prompt
-                    },
-                    {
-                        "role": "user",
-                        "content": user_prompt
-                    }
-                ]
-            }),
-            timeout=120
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            config=types.GenerateContentConfig(
+                system_instruction=system_prompt
+            ),
+            contents=user_prompt
         )
-        response.raise_for_status()
-        ai_data = response.json()
 
-        raw_content = ai_data["choices"][0]["message"]["content"]
+        raw_text = response.text
+        raw_text = re.sub(r"[\x00-\x1f\x7f]","", raw_text)
+
         pattern = r"\{.*\}"
-        match = re.search(pattern, raw_content, re.DOTALL)
+        match = re.search(pattern, raw_text, re.DOTALL)
         if not match:
             return {"success": False, "error": "AI did not return JSON"}
 
-        recipe_str = match.group()
-        ai_recipe = json.loads(recipe_str)
+        json_str = match.group()
+
+        try:
+            ai_recipe = json.loads(json_str)
+        except json.JSONDecodeError:
+            json_str_clean = json_str.replace("\n", "\\n")
+            ai_recipe = json.loads(json_str_clean)
 
         return {
             "success": True,
             "title": ai_recipe.get("title"),
             "cuisine": ai_recipe.get("cuisine"),
-            'ingredients': ai_recipe.get("ingredients"),
+            "ingredients": ai_recipe.get("ingredients"),
             "steps": ai_recipe.get("steps"),
             "youtube_link": get_video(ai_recipe.get("title")),
             "time": ai_recipe.get("time")
         }
-
-    except requests.exceptions.Timeout:
-        return {"success": False, "error": "AI service took too long. Please try again."}
     except Exception as e:
         return {"success":False, "error": str(e)}
-
 
 def get_video(video):
     for duration in ["medium", "short"]:
