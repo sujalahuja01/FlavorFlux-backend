@@ -165,24 +165,33 @@ def get_favourite():
 
 # -------- Deleting recipe --------
 
-@recipes.route("/favourite/<int:rid>", methods=["DELETE"])
+@recipes.route("/delete", methods=["POST"])
 @login_required
-def delete_favourite(rid):
-    fav = Favourite.query.get(rid)
-    if not fav:
-        return error_response("Recipe not found", 404)
-    if fav.user_id != current_user.uid:
-        return error_response("Unauthorized", 401)
+def delete_favourites():
+    data = request.get_json()
+    ids = data.get("ids",[])
+
+    if not ids:
+        return error_response("no ids received to delete recipes", 400)
 
     try:
-        db.session.delete(fav)
+        for rid in ids:
+            fav = Favourite.query.get(rid)
+
+            if not fav:
+                continue
+            if fav.user_id != current_user.uid:
+                return error_response("Forbidden", 403)
+            db.session.delete(fav)
+
         db.session.commit()
+        return success_response("Recipes deleted", 200)
+
     except Exception as e:
         db.session.rollback()
         logging.error(f"Failed to delete recipe for user {current_user.uid}: {e}")
         return error_response("Failed to delete recipe", 500)
 
-    return success_response("Recipe deleted", 200)
 
 
 
