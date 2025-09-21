@@ -26,7 +26,7 @@ def call_ai(ingredients, cuisine=None, previous_title=None):
     "The recipe title should be 2-3 words long maximum. Include the total time required to cook the recipe. "
     "If the ingredients or cuisine are invalid or gibberish, skip the cuisine and generate a recipe based on the ingredients. "
     "You don't need to use every ingredient, but try not to include too many extras. "
-    "Steps should be concise, 3-4 sentences per step, giving helpful guidance but not too verbose. "
+    "Steps should be concise, 2-3 sentences per step, giving helpful guidance but not too verbose. "
     "ALWAYS respond strictly in the following raw JSON format, with no extra text, markdown, or code blocks. "
     "Ingredients should include the quantities used in the recipe and be a comma-separated string. "
     "Steps should be a \\n-separated string with numbered instructions.\n"
@@ -111,3 +111,8 @@ def get_video(video):
             continue
     return None
 
+# Test the function
+if __name__ == "__main__":
+    ingredients = ["chicken breast", "rice", "spinach", "garlic"]
+    result = call_ai(ingredients, cuisine="Indian")
+    print(json.dumps(result, indent=2))
