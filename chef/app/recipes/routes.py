@@ -1,4 +1,3 @@
-import time
 import logging
 from flask_limiter.errors import RateLimitExceeded
 from chef.app.auth.routes import user_or_ip
@@ -28,12 +27,10 @@ recipes = Blueprint("recipes", __name__)
 @login_required
 @limiter.limit("8 per hour", key_func=user_or_ip)
 def generate_recipe():
-    start = time.time()
     data = request.get_json()
 
     ingredients = data.get("ingredients")
     cuisine = data.get("cuisine") or None
-    print(f"Request received at {start}, ingredients={ingredients}")
 
     if not isinstance(ingredients, list) or not ingredients:
         return error_response("Ingredients must be a non-empty list", 400)
@@ -50,9 +47,6 @@ def generate_recipe():
     except Exception as e :
         print("call_ai exception:", e)
         return error_response("Could not generate recipe right now. Please try again", 500)
-
-    end = time.time()
-    print(f"Recipe generated in {end - start} seconds")
 
     session["last_ingredients"] = ingredients
     session["last_cuisine"] = cuisine
