@@ -60,7 +60,7 @@ def call_ai(ingredients, cuisine=None, previous_title=None):
         )
 
         raw_text = response.text
-        raw_text = re.sub(r"[\x00-\x1f\x7f]","", raw_text)
+        raw_text = re.sub(r"[\x00-\x09\x0b-\x1f\x7f]","", raw_text)
 
         pattern = r"\{.*\}"
         match = re.search(pattern, raw_text, re.DOTALL)
