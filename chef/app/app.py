@@ -40,7 +40,7 @@ def create_app():
         "DATABASE_URL",
         app.config.get("SQLALCHEMY_DATABASE_URI", "sqlite:///testdb.db")
     )
-    app.permanent_session_lifetime = timedelta(hours=1)
+    app.permanent_session_lifetime = timedelta(minutes=30)
 
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
