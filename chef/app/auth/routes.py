@@ -165,14 +165,14 @@ def authorize():
                 logging.error(f"Error creating OAuth user {username}: {e}")
                 return error_response("The server’s having a whole meltdown 😵‍💫", 500)
 
-            next_url = "http://127.0.0.1:5500/test.html"
-            # next_url = current_app.config.get("FRONTEND_REDIRECT_URL", "/")
+            next_url = "https://vercel.flavorflux.app/recipes/generate"
+
             return redirect(next_url)
 
         login_user(user)
         session.permanent = True
-        next_url = "http://127.0.0.1:5500/test.html"
-        # next_url = current_app.config.get("FRONTEND_REDIRECT_URL", "/")
+        next_url = "https://vercel.flavorflux.app/recipes/generate"
+
         return redirect(next_url)
     except Exception as e:
         logging.error(f"Exception during Google OAuth authorize: {e}")
@@ -180,13 +180,11 @@ def authorize():
         error_message = "Authentication failed. Please try again later."
         params = {"error": "oauth_failed", "message": error_message}
 
-        next_url = "http://127.0.0.1:5500/chef-main/test.html"
-        # next_url = current_app.config.get("FRONTEND_REDIRECT_URL", "/")
+        next_url = "https://vercel.flavorflux.app/auth/login"
 
         url_with_params = f"{next_url}?{urlencode(params)}"
 
         return redirect(url_with_params)
-
 
 
 # -------- Signup --------
