@@ -81,15 +81,6 @@ def delete_user(user):
     logout_user()
     logging.info(f"User account deleted: id {uid}")
 
-def validate_redirect_url(url: str):
-    # Implement if you need dynamic redirects
-    # For now, just verify it's a safe internal URL or use a config
-    # Returning None means no redirect allowed
-    # Placeholder:
-    permitted_domains = current_app.config.get("PERMITTED_REDIRECT_DOMAINS", [])
-    # For simplicity, disallow redirects here; frontend handles routing
-    return None
-
 
 #-------- Email verification --------
 
@@ -165,13 +156,13 @@ def authorize():
                 logging.error(f"Error creating OAuth user {username}: {e}")
                 return error_response("The server’s having a whole meltdown 😵‍💫", 500)
 
-            next_url = "https://vercel.flavorflux.app/recipes/generate"
+            next_url = "https://flavorflux.vercel.app//recipes/generate"
 
             return redirect(next_url)
 
         login_user(user)
         session.permanent = True
-        next_url = "https://vercel.flavorflux.app/recipes/generate"
+        next_url = "https://flavorflux.vercel.app//recipes/generate"
 
         return redirect(next_url)
     except Exception as e:
@@ -180,7 +171,7 @@ def authorize():
         error_message = "Authentication failed. Please try again later."
         params = {"error": "oauth_failed", "message": error_message}
 
-        next_url = "https://vercel.flavorflux.app/auth/login"
+        next_url = "https://flavorflux.vercel.app//auth/login"
 
         url_with_params = f"{next_url}?{urlencode(params)}"
 
