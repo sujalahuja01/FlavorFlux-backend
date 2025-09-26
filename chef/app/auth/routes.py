@@ -156,13 +156,13 @@ def authorize():
                 logging.error(f"Error creating OAuth user {username}: {e}")
                 return error_response("The server’s having a whole meltdown 😵‍💫", 500)
 
-            next_url = "https://flavorflux.vercel.app//recipes/generate"
+            next_url = "https://flavorflux.vercel.app/generate"
 
             return redirect(next_url)
 
         login_user(user)
         session.permanent = True
-        next_url = "https://flavorflux.vercel.app//recipes/generate"
+        next_url = "https://flavorflux.vercel.app/generate"
 
         return redirect(next_url)
     except Exception as e:
@@ -171,7 +171,7 @@ def authorize():
         error_message = "Authentication failed. Please try again later."
         params = {"error": "oauth_failed", "message": error_message}
 
-        next_url = "https://flavorflux.vercel.app//auth/login"
+        next_url = "https://flavorflux.vercel.app/login"
 
         url_with_params = f"{next_url}?{urlencode(params)}"
 
