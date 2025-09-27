@@ -39,10 +39,6 @@ class ChangePasswordSchema(Schema):
             error="Think big. New Password’s gotta be 8+ 🧠💡"))
     confirm_password = fields.Str(required=True, validate=validate.Length(min=8), data_key="confirmPassword")
 
-class DeleteAccountSchema(Schema):
-    password = fields.Str(required=False, allow_none=True, validate=validate.Length(min=1,
-            error="Bruh, type the magic word or this account stays 🪄"
-))
 
 class PasswordResetSchema(Schema):
     password = fields.Str(required=True,  validate=validate.Length(min=8,
@@ -342,13 +338,12 @@ def change_password():
 def rate_limit_handler(e):
     return error_response("Slow down, speedster 🚦 Too many tries, chill a bit.", 429)
 
-
 # -------- Delete account --------
 @auth.route("/delete", methods=["DELETE"])
 @login_required
 def del_user():
     try:
-        data = DeleteAccountSchema().load(request.get_json())
+        data = request.json.het("password","").strip()
     except ValidationError as err:
         return error_response(message=err.messages, code=400)
 
@@ -390,7 +385,7 @@ def forgot_password():
     if not user:
         return success_response("If we know that email, the reset link’s sliding into your inbox 📬", 200)
     token = generate_reset_token(user.email, current_app.config["SECRET_KEY"], user.reset_token_version)
-    reset_url = f"http://localhost:5173/reset-password/{token}"
+    reset_url = f"https://flavorflux.vercel.app/reset-password/{token}"
 
     msg = Message("Password Reset Request",
                  recipients=[user.email],
