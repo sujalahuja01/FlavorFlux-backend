@@ -343,7 +343,7 @@ def rate_limit_handler(e):
 @login_required
 def del_user():
     try:
-        data = request.json.het("password","").strip()
+        data = request.json.get("password","").strip()
     except ValidationError as err:
         return error_response(message=err.messages, code=400)
 
