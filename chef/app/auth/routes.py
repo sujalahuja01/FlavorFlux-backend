@@ -310,7 +310,7 @@ def change_password():
     new_password = data.get("new_password", "").strip()
     confirm_password = data.get("confirm_password", "").strip()
 
-    if not current_password:
+    if not current_password and not is_google_login(current_user):
         return error_response("Type your old password, bestie ✍️", 400)
 
     if confirm_password != new_password:
