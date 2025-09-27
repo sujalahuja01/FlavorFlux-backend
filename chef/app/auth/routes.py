@@ -429,4 +429,3 @@ def reset_password(token):
     user.reset_token_version += 1
     db.session.commit()
     return success_response("Password reset — you’re back in the game 🎮✨", 200)
-
