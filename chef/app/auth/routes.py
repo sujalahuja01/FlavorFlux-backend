@@ -6,7 +6,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_limiter.errors import RateLimitExceeded
 from urllib.parse import urlencode
-from marshmallow import Schema, fields, validate, ValidationError
+from marshmallow import Schema, fields, validate, ValidationError, EXCLUDE
 from chef.app.app import db, mail
 from chef.app.auth.model import User
 from chef.app.app import limiter, oauth
@@ -32,6 +32,9 @@ class LoginSchema(Schema):
 ))
 
 class ChangePasswordSchema(Schema):
+    class Meta:
+        unknown = EXCLUDE
+
     new_password = fields.Str(required=True, data_key="password", validate=validate.Length(min=8,
             error="Think big. New Password’s gotta be 8+ 🧠💡"))
     confirm_password = fields.Str(required=True, validate=validate.Length(min=8), data_key="confirmPassword")
