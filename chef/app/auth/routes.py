@@ -390,7 +390,7 @@ def forgot_password():
     if not user:
         return success_response("If we know that email, the reset link’s sliding into your inbox 📬", 200)
     token = generate_reset_token(user.email, current_app.config["SECRET_KEY"], user.reset_token_version)
-    reset_url = f"http://localhost:5173/reset-password/{token}"
+    reset_url = f"https://flavorflux.vercel.app/reset-password/{token}"
 
     msg = Message("Password Reset Request",
                  recipients=[user.email],
