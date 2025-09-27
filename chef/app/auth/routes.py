@@ -32,7 +32,6 @@ class LoginSchema(Schema):
 ))
 
 class ChangePasswordSchema(Schema):
-    current_password = fields.Str(required=False, allow_none=True, data_key="currentPassword")
     new_password = fields.Str(required=True, data_key="password", validate=validate.Length(min=8,
             error="Think big. New Password’s gotta be 8+ 🧠💡"))
     confirm_password = fields.Str(required=True, validate=validate.Length(min=8), data_key="confirmPassword")
@@ -306,7 +305,7 @@ def change_password():
     except ValidationError as err:
         return error_response(message=err.messages, code=400)
 
-    current_password = data.get("current_password", "").strip()
+    current_password = request.json.get("current_password", "").strip()
     new_password = data.get("new_password", "").strip()
     confirm_password = data.get("confirm_password", "").strip()
 
