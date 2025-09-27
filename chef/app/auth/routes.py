@@ -305,17 +305,13 @@ def change_password():
     except ValidationError as err:
         return error_response(message=err.messages, code=400)
 
-    current_password = request.json.get("current_password", "").strip()
+    current_password = request.json.get("currentPassword", "").strip()
     new_password = data.get("new_password", "").strip()
     confirm_password = data.get("confirm_password", "").strip()
-
-    if not current_password and not is_google_login(current_user):
-        return error_response("Type your old password, bestie ✍️", 400)
+    user = current_user
 
     if confirm_password != new_password:
         return error_response("Those passwords ain’t twins 💔", 400)
-
-    user = current_user
 
     if is_google_login(user):
 
