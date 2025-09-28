@@ -11,6 +11,9 @@ from chef.app.app import db, mail
 from chef.app.auth.model import User
 from chef.app.app import limiter, oauth
 from itsdangerous import URLSafeTimedSerializer
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+import os
 
 
 # -------- Marshmallow Schemas for Validation --------
@@ -44,6 +47,24 @@ class PasswordResetSchema(Schema):
     password = fields.Str(required=True,  validate=validate.Length(min=8,
             error="Under 8 chars? Nah, we’re not doing that 😤🔒"))
     confirm_password = fields.Str(required=True, data_key="confirmPassword")
+
+
+# -------- SendGrid Helper --------
+
+def send_reset_email(user_email, reset_url):
+    message = Mail(
+        from_email=os.environ.get("MAIL_DEFAULT_SENDER"),
+        to_emails=user_email,
+        subject="Password Reset request",
+        plain_text_content=f"Reset your password using this link (Valid 10 min): {reset_url}"
+    )
+    try:
+        sg = SendGridAPIClient(os.environ.get("SENDGRID_API_KEY"))
+        sg.send(message)
+        current_app.logger.info(f"Reset email sent to {user_email}")
+    except Exception as e :
+        current_app.logger.error(f"SendGrid email failed for {user_email}: {e}")
+        raise
 
 
 # -------- Utility functions  --------
@@ -382,15 +403,13 @@ def forgot_password():
 
     user = User.query.filter_by(email=email).first()
     if not user:
-        return success_response("If we know that email, the reset link’s sliding into your inbox 📬", 200)
+        return success_response("If we know that email, the reset link’s sliding into your inboxx 📬", 200)
+
     token = generate_reset_token(user.email, current_app.config["SECRET_KEY"], user.reset_token_version)
     reset_url = f"https://flavorflux.vercel.app/reset-password/{token}"
 
-    msg = Message("Password Reset Request",
-                 recipients=[user.email],
-                 body=f"Reset your password using this link (Valid for 10 minutes): {reset_url}")
     try:
-        mail.send(msg)
+        send_reset_email(user.email, reset_url)
     except Exception as e:
         logging.error(f"Mail send failed: {e}")
         return error_response("Couldn't send reset mail rn, try later",500)
