@@ -56,7 +56,25 @@ def send_reset_email(user_email, reset_url):
         from_email=os.environ.get("MAIL_DEFAULT_SENDER"),
         to_emails=user_email,
         subject="Password Reset request",
-        plain_text_content=f"Reset your password using this link (Valid 10 min): {reset_url}"
+        html_content=f"""
+               <div style="font-family: Arial, sans-serif; color: #222; line-height: 1.6;">
+                   <h2 style="color:#1FCC79;">FlavorFlux Password Reset</h2>
+                   <p>We got a request to reset your password.  
+                   Click the button below to reset it (valid for <b>10 minutes</b>):</p>
+
+                   <a href="{reset_url}" 
+                      style="display: inline-block; padding: 12px 20px;
+                             background-color: #1FCC79; color: white; text-decoration: none;
+                             border-radius: 6px; font-weight: bold; font-size: 16px;">
+                       Reset Password
+                   </a>
+
+                   <p style="margin-top:20px; font-size: 14px; color: #666;">
+                       If you didn’t request this, you can safely ignore this email.  
+                       Your password will stay the same. 💚
+                   </p>
+               </div>
+               """
     )
     try:
         sg = SendGridAPIClient(os.environ.get("SENDGRID_API_KEY"))
