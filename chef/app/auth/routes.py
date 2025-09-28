@@ -58,19 +58,21 @@ def send_reset_email(user_email, reset_url):
         subject="Password Reset request",
         html_content=f"""
                <div style="font-family: Arial, sans-serif; color: #222; line-height: 1.6;">
-                   <h2 style="color:#1FCC79;">FlavorFlux Password Reset</h2>
-                   <p>We got a request to reset your password.  
+                   <h2 style="color:#1FCC79; text-align:center;">FlavorFlux Password Reset</h2>
+                   <p style="text-align:center;">We got a request to reset your password.<br>
                    Click the button below to reset it (valid for <b>10 minutes</b>):</p>
 
-                   <a href="{reset_url}" 
-                      style="display: inline-block; padding: 12px 20px;
-                             background-color: #1FCC79; color: white; text-decoration: none;
-                             border-radius: 6px; font-weight: bold; font-size: 16px;">
-                       Reset Password
-                   </a>
+                   <div style="text-align:center; margin: 20px 0;">
+                       <a href="{reset_url}" 
+                          style="display: inline-block; padding: 12px 20px;
+                                 background-color: #1FCC79; color: white; text-decoration: none;
+                                 border-radius: 6px; font-weight: bold; font-size: 16px;">
+                           Reset Password
+                       </a>
+                   </div>
 
-                   <p style="margin-top:20px; font-size: 14px; color: #666;">
-                       If you didn’t request this, you can safely ignore this email.  
+                   <p style="margin-top:20px; font-size: 14px; color: #666; text-align:center;">
+                       If you didn’t request this, you can safely ignore this email.<br>
                        Your password will stay the same. 💚
                    </p>
                </div>
