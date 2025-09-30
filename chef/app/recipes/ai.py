@@ -19,7 +19,7 @@ client = genai.Client(api_key=GEMINI_KEY)
 
 def call_ai(ingredients, cuisine=None, previous_title=None):
     formatted_ingredients = ", ".join(ingredients) if isinstance(ingredients, list) else str(ingredients)
-    )
+    
     
     system_prompt = (
     "You are an assistant that receives a list of ingredients and optionally a cuisine, "
