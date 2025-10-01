@@ -11,4 +11,5 @@ class Favourite(db.Model):
     youtube_link = db.Column(db.String(200))
     steps = db.Column(db.Text)
     time = db.Column(db.Text)
+    img_url = db.Column(db.String(200))
 
