@@ -112,7 +112,8 @@ def save_recipe():
         cuisine = recipe_data["cuisine"],
         youtube_link = recipe_data.get("youtube_link"),
         steps = recipe_data["steps"],
-        time = recipe_data["time"]
+        time = recipe_data["time"],
+        img_url = recipe_data["img_url"]
     )
 
     existing_fav = Favourite.query.filter_by(user_id=current_user.uid, title=recipe_data["title"]).first()
@@ -131,7 +132,7 @@ def save_recipe():
             logging.error(f"Failed to save recipe for user {current_user.uid}: {e}")
             return error_response("Failed to save recipe", 500)
 
-        return jsonify({"success": True, "message": "Recipe saved", "total_recipe": count}), 201
+        return jsonify({"success": True, "message": "View the saved recipe in favourites page", "total_recipe": count}), 201
 
     else :
         return jsonify({"success": False, "error": "Already reached the saving limit", "total_recipe": count}), 403
@@ -156,8 +157,8 @@ def get_favourite():
                 "youtube_link": f.youtube_link,
                 "steps": f.steps,
                 "id": f.rid,
-                "time": f.time
-
+                "time": f.time,
+                "img_url": f.img_url
             } for f in favs
         ]
     }), 200
@@ -191,7 +192,3 @@ def delete_favourites():
         db.session.rollback()
         logging.error(f"Failed to delete recipe for user {current_user.uid}: {e}")
         return error_response("Failed to delete recipe", 500)
-
-
-
-

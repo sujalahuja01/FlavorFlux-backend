@@ -13,6 +13,7 @@ load_dotenv(dotenv_path=env_path)
 
 YT_KEY = os.getenv("YT_KEY")
 GEMINI_KEY = os.getenv("GEMINI_API_KEY")
+SPOONACULAR_API_KEY = os.getenv("SPOONACULAR_API_KEY")
 
 client = genai.Client(api_key=GEMINI_KEY)
 
@@ -75,13 +76,22 @@ def call_ai(ingredients, cuisine=None, previous_title=None):
             json_str_clean = json_str.replace("\n", "\\n")
             ai_recipe = json.loads(json_str_clean)
 
+        urls = get_video(ai_recipe.get("title"))
+        if urls:
+            yt_link = urls["video_link"]
+            img_url = urls['thumbnail']
+        else:
+            yt_link = None
+            img_url = None
+
         return {
             "success": True,
             "title": ai_recipe.get("title"),
             "cuisine": ai_recipe.get("cuisine"),
             "ingredients": ai_recipe.get("ingredients"),
             "steps": ai_recipe.get("steps"),
-            "youtube_link": get_video(ai_recipe.get("title")),
+            "youtube_link": yt_link,
+            "img_url": img_url,
             "time": ai_recipe.get("time")
         }
     except Exception as e:
@@ -105,7 +115,14 @@ def get_video(video):
             item = data.get("items", [])
             if item:
                 video_id = item[0]["id"]["videoId"]
-                return f"https://www.youtube.com/watch?v={video_id}"
+                snippet = item[0]["snippet"]
+                thumbnail_url = snippet["thumbnails"].get("high", {}).get("url") \
+                                or snippet["thumbnails"].get("medium", {}).get("url") \
+                                or snippet["thumbnails"].get("default", {}).get("url")
+                return {
+                    "video_link": f"https://www.youtube.com/watch?v={video_id}",
+                    "thumbnail": thumbnail_url
+                }
         except requests.exceptions.RequestException as e:
             print(f"Error fetching YouTube video for duration {duration}: {e}")
             continue
