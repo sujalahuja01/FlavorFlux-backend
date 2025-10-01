@@ -20,9 +20,10 @@ client = genai.Client(api_key=GEMINI_KEY)
 
 def call_ai(ingredients, cuisine=None, previous_title=None):
     formatted_ingredients = ", ".join(ingredients) if isinstance(ingredients, list) else str(ingredients)
-
+    
+    
     system_prompt = (
-           "You are an assistant that receives a list of ingredients and optionally a cuisine, "
+    "You are an assistant that receives a list of ingredients and optionally a cuisine, "
     "and suggests a recipe the user can make with some or all of those ingredients. "
     "The recipe title should be 2-3 words long maximum. Include the total time required to cook the recipe. "
     "If the ingredients or cuisine are invalid or gibberish, skip the cuisine and generate a recipe based on the ingredients. "
@@ -30,17 +31,16 @@ def call_ai(ingredients, cuisine=None, previous_title=None):
     "Steps should be concise, 1-2 sentences per step, giving helpful guidance but not too verbose. "
     "ALWAYS respond strictly in the following raw JSON format, with no extra text, markdown, or code blocks. "
     "Ingredients should include the quantities used in the recipe and be a comma-separated string. "
-    "Steps should be a \\n-separated string with numbered instructions.\n"
+    "Steps should be a \\n-separated string of concise instructions (do not include numbers or bullets).\n"
     "Example:\n"
-        '{'
-        '"title": "Berry Cream Crostini",'
-        '"cuisine": "Italian",'
-       '"ingredients": "1 chicken breast, 1 medium potato, 1/2 onion, 100g paneer, 2 tbsp flour, 2 tbsp cooking oil, salt to taste",'
-        '"steps": "1. Slice strawberries and pit cherries carefully. Set aside a few berries for garnish.\n2. In a bowl, mix cream cheese and 2 tbsp sugar until smooth and creamy. Optionally, add a pinch of lemon zest for extra flavor.\n3. In a small saucepan, cook half of the berries with 1 tbsp sugar over medium heat for 5 minutes until they become syrupy. Let it cool slightly.\n4. Toast bread slices until crisp and golden brown.\n5. Spread the cream cheese mixture evenly on the toasted bread. Top with the cooked berry compote and fresh reserved berries for garnish.",'
-        '"time": "15 minutes"'
-        '}'
-
-    )
+    '{'
+    '"title": "Berry Cream Crostini",'
+    '"cuisine": "Italian",'
+    '"ingredients": "4 slices bread, 100g cream cheese, 1 cup mixed berries, 2 tbsp sugar, pinch lemon zest",'
+    '"steps": "Slice strawberries and pit cherries carefully. Set aside a few berries for garnish.\\nIn a bowl, mix cream cheese and sugar until smooth. Optionally, add lemon zest.\\nCook half the berries with 1 tbsp sugar until syrupy. Let cool.\\nToast bread until golden.\\nSpread cheese, top with compote and fresh berries.",'
+    '"time": "15 minutes"'
+    '}'
+)
 
 
     edited_text =  f" Do not suggest the recipe titled '{previous_title}'. Please recommend a different recipe." if previous_title else ""
