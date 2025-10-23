@@ -7,5 +7,3 @@ load_dotenv(dotenv_path)
 
 chef_app = create_app()
 
-if __name__ == "__main__":
-    chef_app.run()
