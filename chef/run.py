@@ -8,5 +8,5 @@ load_dotenv(dotenv_path)
 chef_app = create_app()
 
 if __name__ == "__main__":
-    chef_app.run()
+    chef_app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
 
