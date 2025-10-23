@@ -77,6 +77,10 @@ def create_app():
     from chef.app.recipes.routes import recipes
     app.register_blueprint(recipes, url_prefix="/recipes")
 
+    @app.route("/")
+    def index():
+        return "FlavorFlux API is running 🚀", 200
+
 
     return app
 
