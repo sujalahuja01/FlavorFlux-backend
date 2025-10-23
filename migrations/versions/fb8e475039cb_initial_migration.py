@@ -1,8 +1,8 @@
-"""Initial migration for Render Postgres
+"""Initial migration
 
-Revision ID: 3fff510c7f67
+Revision ID: fb8e475039cb
 Revises: 
-Create Date: 2025-09-18 14:47:54.684848
+Create Date: 2025-10-23 16:41:08.585264
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '3fff510c7f67'
+revision = 'fb8e475039cb'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -37,6 +37,7 @@ def upgrade():
     sa.Column('youtube_link', sa.String(length=200), nullable=True),
     sa.Column('steps', sa.Text(), nullable=True),
     sa.Column('time', sa.Text(), nullable=True),
+    sa.Column('img_url', sa.String(length=200), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['users.uid'], ),
     sa.PrimaryKeyConstraint('rid')
     )
