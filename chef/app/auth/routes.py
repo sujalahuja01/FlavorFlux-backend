@@ -1,6 +1,5 @@
 import logging
 from flask_limiter.util import get_remote_address
-from flask_mail import Message
 from flask import Blueprint, request, jsonify, url_for, redirect, current_app, session
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
